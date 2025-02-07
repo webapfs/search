@@ -1,0 +1,11 @@
+.pagination .page-item-count {
+	display: none;
+}
+.pagination .page-item-count.active-page, 
+.pagination .page-item-count.active-page + .page-item-count,
+.pagination .page-item-count.active-page + .page-item-count + .page-item-count,
+.pagination .page-item-count.active-page + .page-item-count + .page-item-count + .page-item-count,
+.pagination .page-item-count.active-page + .page-item-count + .page-item-count + .page-item-count + .page-item-count
+{
+	display: inline-block;
+}

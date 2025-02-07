@@ -1,0 +1,7 @@
+:host {
+	width: 100% !important;
+	display: block;
+}
+:host img {
+	width: 100%;
+}

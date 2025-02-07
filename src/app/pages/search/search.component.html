@@ -1,0 +1,174 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a routerLink="/" class="nav-link" aria-current="page" href="#">Home</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container-fluid mt-3">
+	<div class="containerr">
+		<div class="row">
+			<div class="col-md-12">
+				<h3>Search for products</h3>
+				<form [formGroup]="searchForm">
+				  <div class="mb-3">
+				    <label for="exampleInputEmail1" class="form-label">Keyword</label>
+				    <input autocomplete="off" formControlName="keyword" name="keyword" type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+				    <div id="emailHelp" class="form-text">Search a keyword in product name or description</div>
+						<div *ngIf="keyword.invalid && (keyword.dirty || keyword.touched)"
+						    class="text-danger">
+						  <div *ngIf="keyword.errors?.['required']">
+						  	Keyword is required.
+						  </div>
+						  <div *ngIf="keyword.errors?.['minlength']">
+						  	Keyword must be at least 2 characters long.
+						  </div>
+						</div>
+				  </div>
+				  <button (click)="search($event)" type="submit" class="btn btn-primary" [disabled]="keyword.invalid || loading">{{ buttonLabel }}</button>
+				</form>
+				<hr>
+
+				<div class="row">
+					<div class="col-md-12">
+
+						<div class="d-flex flex-column flex-md-row" *ngIf="products.length">
+
+
+							<div class="d-flex flex-column flex-md-row gap-2">
+								<div>
+									<h2 class="m-0" >Keyword: {{ searchForm.value.keyword }}</h2>
+							
+								</div>
+
+								<div class="dropdown d-flex d-md-inline-block">
+								  <button class="btn btn-light dropdown-toggle border flex-grow-1 flex-md-grow-0" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+								    {{ importedBuyLineLabel }}
+								  </button>
+								  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+								    <li *ngFor="let option of buyLineType()"><a class="dropdown-item" href="#" (click)="filterBuyLine({BuyLine:option})">{{ option }}</a></li>
+								  </ul>
+								</div>
+
+								<div class="dropdown d-flex d-md-inline-block">
+								  <button class="btn btn-light dropdown-toggle border flex-grow-1 flex-md-grow-0" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+								    {{ importedFilterLabel }}
+								  </button>
+								  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+								    <li><a class="dropdown-item" href="#" (click)="filterImported({imported:true})">In WooCommerce</a></li>
+								    <li><a class="dropdown-item" href="#" (click)="filterImported({imported:false})">Not in WooCommerce</a></li>
+								  </ul>
+								</div>
+								<div class="dropdown d-flex" [ngClass]="{'d-none':!showImportBtn(), 'd-md-inline-block':showImportBtn()}">
+									<button data-bs-toggle="modal" data-bs-target="#categoryModal" class="btn btn-primary flex-grow-1 flex-md-grow-0">Import {{ getSelectProducts().length }} into WooCommerce</button>
+								</div>
+								<div class="d-flex d-md-inline-block">
+									<button class="btn btn-primary flex-grow-1 flex-md-grow-0" (click)="resetFilters()">Reset filters</button>
+								</div>								
+							</div> <!-- table left end -->
+
+							<div class="flex-grow-1"></div>
+
+							<div class="d-flex align-items-center gap-2">
+								<span> Displaying <strong>{{ index }} - {{ max * currentPage }}</strong> out of <strong>{{ unfilteredProductCount }}</strong></span>
+								<nav aria-label="Page navigation example" *ngIf="pageCount">
+								  <ul class="pagination justify-content-end mb-0">
+								    <li class="page-item" [ngClass]="{ 'disabled' : currentPage == 1}">
+								      <a (click)="goToPage($event, currentPage - 1)" href="#" class="page-link">Previous</a>
+								    </li>
+								    <li *ngFor="let item of [].constructor(pageCount); let i = index" class="page-item page-item-count" [ngClass]="{ 'disabled' : currentPage == i + 1, 'active-page' : currentPage == i + 1  }"  >
+								    	<a (click)="goToPage($event, i + 1)" class="page-link" href="#">{{ i + 1 }}</a>
+								    </li>
+								    <li class="page-item" [ngClass]="{ 'disabled' : currentPage == pageCount}">
+								      <a (click)="goToPage($event, currentPage + 1)" class="page-link" href="#">Next</a>
+								    </li>
+								  </ul>
+								</nav>
+							</div>
+
+						</div>
+
+						<hr *ngIf="products.length">
+
+						<table class="table" *ngIf="products.length > 0">
+						  <thead>
+						    <tr>
+						      <th>
+								<div class="form-check">
+								  <input [checked]="selectAll" class="form-check-input" (change)="selectAllProducts(productsStream)" type="checkbox" value="" id="flexCheckDefault">
+								</div>	
+						      </th>
+						    <!--   <th >Index</th> -->
+						      <th >Part #</th>
+						      <th >E-Comm Data</th>
+						      <th >BuyLine</th>
+						      <th >PriceLine</th>
+						      <th >Description</th>
+						      <th >UPCList</th>
+						      <th >Currency</th>
+						      <th >ListPrice</th>
+						      <th >CustomerPrice</th>
+						      <th >ExtendedPrice</th>
+						      <!-- <th >Import</th> -->
+						    </tr>
+						  </thead>
+						  <tbody>
+						  	<tr (onClickImport)="importSingleProduct($event)" (onSelect)="onSelect(product)" *ngFor="let product of productsStream; let i = index" [product]="product" [i]="i" app-tr></tr>
+						  </tbody>
+						</table>
+
+						<h2 *ngIf="!productsStream.length && !loading && searchForm.value.keyword.length">No Products</h2>
+
+
+
+					</div>
+				</div>
+				
+					<div *ngIf="loading">
+					<span>	 Loading results for page {{ currentPage }}</span>
+					</div>
+
+			</div>
+		</div>		
+	</div>
+</div>
+
+
+<!-- Modal -->
+<div #categoryModal class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Select categories for this import ({{ getSelectProducts().length }} products)</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" *ngIf="categoriesControls && categoriesControls.controls && categoriesControls.controls.length && catForm">
+
+      	<form>
+	 		<div *ngFor="let category of categoriesControls.controls; let i = index" class="form-check">
+			  <input (change)="categoryInputChange($event)" [formControl]="category" class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+			  <label class="form-check-label" for="flexCheckDefault">
+			    {{ categories[i].name }}
+			  </label>
+			</div>     		
+      	</form>
+
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button [disabled]="!canImportFalse || isImporting" type="submit" class="btn btn-primary" (click)="runActionOnSelected('import')">{{ importBtnLabel }}</button>
+      </div>
+    </div>
+  </div>
+</div>

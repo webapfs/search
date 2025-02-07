@@ -1,0 +1,71 @@
+<td>
+	<div class="form-check">
+	  <input [checked]="product.selected" (change)="toggleSelect()" class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
+	</div>	
+</td>
+<!-- <td scope="row">{{ i }}</td> -->
+<td>
+	<a target="_blank" *ngIf="existInWooCommerce" [routerLink]="['/product', product?.PartIdentifiers.EclipsePartNumber]" href="#">
+		{{ product?.PartIdentifiers.EclipsePartNumber }}
+	</a>
+	<span *ngIf="!existInWooCommerce">{{ product?.PartIdentifiers.EclipsePartNumber }}</span> 
+
+	<div *ngIf="existInWooCommerce != undefined || existInWooCommerce != null">
+		<span *ngIf="existInWooCommerce" class="text-success"><strong>IMPORTED</strong></span>
+		<span *ngIf="!existInWooCommerce" class="text-danger"><strong>NOT IMPORTED</strong></span>		
+	</div>
+</td>
+<td>
+		<span class="text-success" *ngIf="existInMongoDB">
+
+
+			<button (click)="importMongoIntoWoo($event)" class="btn btn-primary">Import Ecomm Data</button>
+
+	<div  *ngIf="product?.PartIdentifiers.UPCList && !isString(product?.PartIdentifiers.UPCList.UPC)">
+  	<span *ngFor="let upc of product?.PartIdentifiers.UPCList.UPC; let last = last">
+  		
+  		<a target="_blank" href="https://apfs-products.herokuapp.com/product?upc={{ upc }}">Open Data</a>
+  		<span *ngIf="last == false">,</span>
+  	</span>						      		
+	</div>
+	<div  *ngIf="product?.PartIdentifiers.UPCList && isString(product?.PartIdentifiers.UPCList.UPC)">
+		<a target="_blank" href="https://apfs-products.herokuapp.com/product?upc={{ product?.PartIdentifiers.UPCList.UPC }}">Open Data</a>
+	</div>
+
+			
+		</span>	
+	 	<span class="text-danger" *ngIf="!existInMongoDB || existInMongoDB == null">
+	 		NO
+	 	</span>	
+</td>
+<td>{{ product?.BuyLine }}</td>
+<td>{{ product?.PriceLine }}</td>
+<td>
+	{{ product?.Description }} <br>
+	<div *ngIf="product?.RichContentList">
+		<img class="img-thumbnail" width="100" *ngFor="let url of product?.RichContentList.RichContentItem" src="{{ url.Value }}">
+	</div>
+	
+</td>
+
+<td>
+	<div  *ngIf="product?.PartIdentifiers.UPCList && !isString(product?.PartIdentifiers.UPCList.UPC)">
+  	<span *ngFor="let upc of product?.PartIdentifiers.UPCList.UPC; let last = last">
+  		{{ upc }}
+  		<span *ngIf="last == false">,</span>
+  	</span>						      		
+	</div>
+	<div  *ngIf="product?.PartIdentifiers.UPCList && isString(product?.PartIdentifiers.UPCList.UPC)">
+		{{ product?.PartIdentifiers.UPCList.UPC }}
+	</div>
+	<div  *ngIf="product?.PartIdentifiers.UPCList == null">
+		none
+	</div>
+</td>
+<td>{{ product?.Pricing.Currency }}</td>
+<td>{{ product?.Pricing.ListPrice | currency }}</td>
+<td>{{ product?.Pricing.CustomerPrice | currency }}</td>
+<td>{{ product?.Pricing.ExtendedPrice | currency }}</td>
+<!-- <td>
+	<button (click)="importAction()"  type="submit" class="btn btn-primary">Import</button>
+</td> -->
